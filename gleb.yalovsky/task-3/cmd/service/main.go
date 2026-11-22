@@ -2,17 +2,24 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 
 	"golang.org/x/text/encoding/charmap"
 	"gopkg.in/yaml.v3"
+)
+
+const (
+	directoryMode = 0o750
+	fileMode      = 0o600
 )
 
 type Config struct {
@@ -27,9 +34,9 @@ type XMLCurrency struct {
 }
 
 type Currency struct {
-	NumCode  int
-	CharCode string
-	Value    float64
+	NumCode  int     `json:"num_code"`
+	CharCode string  `json:"char_code"`
+	Value    float64 `json:"value"`
 }
 
 func main() {
@@ -51,9 +58,7 @@ func main() {
 	}
 
 	currencies := readCurrencies(config.InputFile)
-	for _, currency := range currencies {
-		fmt.Println(currency.NumCode, currency.CharCode, currency.Value)
-	}
+	writeJSON(config.OutputFile, currencies)
 }
 
 func readCurrencies(path string) []Currency {
@@ -99,4 +104,19 @@ func readCurrencies(path string) []Currency {
 	})
 
 	return currencies
+}
+
+func writeJSON(path string, currencies []Currency) {
+	data, err := json.MarshalIndent(currencies, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(path), directoryMode); err != nil {
+		panic(err)
+	}
+
+	if err := os.WriteFile(path, data, fileMode); err != nil {
+		panic(err)
+	}
 }
