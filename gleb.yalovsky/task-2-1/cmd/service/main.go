@@ -7,10 +7,10 @@ import (
 )
 
 func main() {
-	in := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(os.Stdin)
 
 	var departments int
-	if _, err := fmt.Fscan(in, &departments); err != nil {
+	if _, err := fmt.Fscan(reader, &departments); err != nil {
 		fmt.Fprintln(os.Stderr, "reading departments:", err)
 
 		return
@@ -18,7 +18,7 @@ func main() {
 
 	for range departments {
 		var employees int
-		if _, err := fmt.Fscan(in, &employees); err != nil {
+		if _, err := fmt.Fscan(reader, &employees); err != nil {
 			fmt.Fprintln(os.Stderr, "reading employees:", err)
 
 			return
@@ -32,7 +32,7 @@ func main() {
 				temp int
 			)
 
-			if _, err := fmt.Fscan(in, &sign, &temp); err != nil {
+			if _, err := fmt.Fscan(reader, &sign, &temp); err != nil {
 				fmt.Fprintln(os.Stderr, "reading preference:", err)
 
 				return
