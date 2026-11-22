@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -21,6 +22,8 @@ const (
 	directoryMode = 0o750
 	fileMode      = 0o600
 )
+
+var errUnsupportedEncoding = errors.New("unsupported encoding")
 
 type Config struct {
 	InputFile  string `yaml:"input-file"`
@@ -73,7 +76,7 @@ func readCurrencies(path string) []Currency {
 			return charmap.Windows1251.NewDecoder().Reader(reader), nil
 		}
 
-		return nil, fmt.Errorf("unsupported encoding: %s", encoding)
+		return nil, fmt.Errorf("%w: %s", errUnsupportedEncoding, encoding)
 	}
 
 	var rates struct {
@@ -86,6 +89,7 @@ func readCurrencies(path string) []Currency {
 	}
 
 	currencies := make([]Currency, 0, len(rates.Items))
+
 	for _, item := range rates.Items {
 		value, err := strconv.ParseFloat(strings.ReplaceAll(item.Value, ",", "."), 64)
 		if err != nil {
